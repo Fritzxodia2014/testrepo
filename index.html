@@ -1,11 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World Example</title>
-  </head>
-  <body>
-    <b>Hello World</b>
-  </body>
+    <title>AI.SEARCH</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #121212;
+            color: white;
+        }
+        .search-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1E1E1E;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #007BFF;
+            color: white;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .links {
+            margin-top: 20px;
+        }
+        .links a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 18px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to AI.SEARCH</h1>
+    <div class="search-box">
+        <input type="text" id="search-query" placeholder="Enter your search term...">
+        <br>
+        <button onclick="searchGoogle()">Search Google</button>
+        <button onclick="searchChatGPT()">Ask ChatGPT</button>
+    </div>
+    
+    <div class="links">
+        <p><a href="https://www.google.com" target="_blank">Google</a> | <a href="https://chat.openai.com" target="_blank">ChatGPT</a></p>
+    </div>
+    
+    <script>
+        function searchGoogle() {
+            var query = document.getElementById("search-query").value;
+            if (query) {
+                window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+            }
+        }
+        
+        function searchChatGPT() {
+            var query = document.getElementById("search-query").value;
+            if (query) {
+                window.location.href = "https://chat.openai.com/?q=" + encodeURIComponent(query);
+            }
+        }
+    </script>
+</body>
 </html>
