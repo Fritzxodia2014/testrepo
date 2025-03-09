@@ -34,6 +34,13 @@
             <p>Welcome, <span id="user-name"></span>!</p>
             <img id="user-image" src="" alt="User Image">
             <button onclick="signOut()">Sign Out</button>
+            <h3>Connect Your Social Media</h3>
+            <div class="social-links">
+                <a href="#" class="social-button facebook">Facebook</a>
+                <a href="#" class="social-button twitter">Twitter</a>
+                <a href="#" class="social-button instagram">Instagram</a>
+                <a href="#" class="social-button linkedin">LinkedIn</a>
+            </div>
         </div>
     </main>
     
@@ -88,6 +95,21 @@
         height: 50px;
         border-radius: 50%;
     }
+    .social-links {
+        margin-top: 10px;
+    }
+    .social-button {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+    }
+    .facebook { background-color: #3b5998; }
+    .twitter { background-color: #1da1f2; }
+    .instagram { background-color: #e4405f; }
+    .linkedin { background-color: #0077b5; }
     @media (max-width: 768px) {
         header h1 {
             font-size: 1.5rem;
