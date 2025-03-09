@@ -1,107 +1,106 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const multer = require('multer');
-const path = require('path');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { exec } = require('child_process');
-
-dotenv.config();
-
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
-});
-
-const APP_NAME = "Tambayan sa Space";
-const PORT = process.env.PORT || 3000;
-
-let users = []; // Store user locations
-
-// Set up storage for uploaded images
-const storage = multer.diskStorage({
-    destination: './uploads/',
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`);
-    }
-});
-
-const upload = multer({ storage });
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-io.on('connection', (socket) => {
-    console.log(`${APP_NAME}: A user connected`);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambayan sa Space</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light">
+    <header>
+        <img src="panda-icon.png" alt="Tambayan sa Space" id="app-icon">
+        <h1>Tambayan sa Space</h1>
+    </header>
     
-    socket.on('setLocation', (location) => {
-        users[socket.id] = location;
-        console.log(`${APP_NAME}: User ${socket.id} set location:`, location);
-    });
+    <div id="theme-switcher">
+        <button onclick="setTheme('light')">Light</button>
+        <button onclick="setTheme('semi-light')">Semi-Light</button>
+        <button onclick="setTheme('dark')">Dark</button>
+    </div>
     
-    socket.on('sendMessage', (data) => {
-        const senderLocation = users[socket.id];
-        if (!senderLocation) return;
-        
-        for (let [id, location] of Object.entries(users)) {
-            if (id !== socket.id && getDistance(senderLocation, location) < 10) {
-                io.to(id).emit('receiveMessage', data);
-            }
-        }
-    });
+    <div id="auth-container">
+        <div id="login-form">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <button onclick="googleLogin()">Login with Google</button>
+            <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+        </div>
+        <div id="register-form" style="display:none;">
+            <h2>Register</h2>
+            <input type="text" id="register-name" placeholder="Full Name">
+            <input type="email" id="register-email" placeholder="Email">
+            <input type="password" id="register-password" placeholder="Password">
+            <input type="tel" id="register-phone" placeholder="Phone Number">
+            <button onclick="register()">Register</button>
+            <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+        </div>
+    </div>
     
-    socket.on('disconnect', () => {
-        delete users[socket.id];
-        console.log(`${APP_NAME}: A user disconnected`);
-    });
-});
+    <div id="profile-container" style="display:none;">
+        <h2>Profile</h2>
+        <input type="text" id="profile-name" placeholder="Full Name">
+        <input type="text" id="profile-address" placeholder="Address">
+        <input type="tel" id="profile-phone" placeholder="Phone Number">
+        <button onclick="updateProfile()">Save</button>
+    </div>
 
-// Handle image uploads
-app.post('/upload', upload.single('image'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
-});
+    <div id="chat-container" style="display:none;">
+        <div id="user-list"></div>
+        <div id="chat-box">
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+            <input type="file" id="image-upload" accept="image/*">
+            <button onclick="sendImage()">Send Image</button>
+            <button onclick="startAudioCall()">Audio Call</button>
+            <button onclick="startVideoCall()">Video Call</button>
+            <button onclick="sendEmoji('😊')">😊</button>
+            <button onclick="sendEmoji('😂')">😂</button>
+            <button onclick="sendEmoji('❤️')">❤️</button>
+            <select id="font-selector" onchange="changeFont()">
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Times New Roman">Times New Roman</option>
+            </select>
+            <input type="color" id="bg-color" onchange="changeBackground()" title="Change Background">
+        </div>
+    </div>
+    
+    <div id="extra-features">
+        <h2>Recent Activity</h2>
+        <div id="recent-calls"></div>
+        <div id="recent-messages"></div>
+        <h2>New Activity</h2>
+        <div id="new-calls"></div>
+        <div id="new-messages"></div>
+        <h2>Friends</h2>
+        <div id="friend-requests"></div>
+        <div id="friend-list"></div>
+        <h2>Inbox & Outbox</h2>
+        <div id="inbox"></div>
+        <div id="outbox"></div>
+        <h2>Account Settings</h2>
+        <div id="restricted-accounts"></div>
+        <div id="blocked-accounts"></div>
+        <button onclick="unblockUser()">Unblock</button>
+        <button onclick="blockUser()">Block</button>
+        <h2>Affinity Level</h2>
+        <div id="affinity-level"></div>
+    </div>
+    
+    <div id="subscription-bar">
+        <p>Subscribe for premium features</p>
+        <button onclick="subscribe()">Subscribe</button>
+    </div>
 
-function getDistance(loc1, loc2) {
-    const R = 6371; // Radius of the Earth in km
-    const dLat = (loc2.lat - loc1.lat) * (Math.PI / 180);
-    const dLon = (loc2.lon - loc1.lon) * (Math.PI / 180);
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(loc1.lat * (Math.PI / 180)) * Math.cos(loc2.lat * (Math.PI / 180)) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c; // Distance in km
-}
+    <div id="social-links">
+        <a href="#" target="_blank">Facebook</a>
+        <a href="#" target="_blank">Twitter</a>
+        <a href="#" target="_blank">Instagram</a>
+    </div>
 
-// GitHub Deployment Helper
-app.get('/deploy', (req, res) => {
-    exec('git pull origin main && npm install && pm2 restart all', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return res.status(500).send('Deployment failed');
-        }
-        if (stderr) {
-            console.error(`Stderr: ${stderr}`);
-        }
-        console.log(`Stdout: ${stdout}`);
-        res.send('Deployment successful');
-    });
-});
-
-// Serve the frontend HTML file
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-server.listen(PORT, () => {
-    console.log(`${APP_NAME} Server is running on port ${PORT}`);
-});
+    <script src="script.js"></script>
+</body>
+</html>
