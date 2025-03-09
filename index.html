@@ -45,6 +45,13 @@
                 <a href="#" class="social-button linkedin">LinkedIn</a>
             </div>
         </div>
+        
+        <h3>Live Chat</h3>
+        <div id="chat-box">
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </main>
     
     <footer>
@@ -125,6 +132,26 @@
             width: 80%;
         }
     }
+    #chat-box {
+        margin-top: 20px;
+        width: 80%;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background: white;
+    }
+    #chat-messages {
+        height: 200px;
+        overflow-y: auto;
+        border-bottom: 1px solid #ccc;
+        padding: 5px;
+    }
+    #chat-input {
+        width: 70%;
+        padding: 5px;
+    }
 </style>
 
 <!-- script.js -->
@@ -139,9 +166,20 @@
         document.getElementById("user-info").style.display = "none";
     }
     function generateGuestID() {
-        const guestID = "Guest_" + Math.floor(Math.random() * 100000);
+        const guestID = "Guest_" + Math.floor(Math.random() * 1000000);
         document.getElementById("user-name").textContent = guestID;
         document.getElementById("user-image").src = "default-avatar.png";
         document.getElementById("user-info").style.display = "block";
+    }
+    function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value;
+        if (message.trim() === "") return;
+        
+        const chatMessages = document.getElementById("chat-messages");
+        const newMessage = document.createElement("p");
+        newMessage.textContent = document.getElementById("user-name").textContent + ": " + message;
+        chatMessages.appendChild(newMessage);
+        input.value = "";
     }
 </script>
