@@ -3,12 +3,23 @@ const http = require('http');
 const socketIo = require('socket.io');
 const multer = require('multer');
 const path = require('path');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const { exec } = require('child_process');
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
 
 const APP_NAME = "Tambayan sa Space";
+const PORT = process.env.PORT || 3000;
 
 let users = []; // Store user locations
 
@@ -22,6 +33,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+app.use(cors());
+app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 io.on('connection', (socket) => {
@@ -68,6 +81,21 @@ function getDistance(loc1, loc2) {
     return R * c; // Distance in km
 }
 
-server.listen(3000, () => {
-    console.log(`${APP_NAME} Server is running on port 3000`);
+// GitHub Deployment Helper
+app.get('/deploy', (req, res) => {
+    exec('git pull origin main && npm install && pm2 restart all', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`);
+            return res.status(500).send('Deployment failed');
+        }
+        if (stderr) {
+            console.error(`Stderr: ${stderr}`);
+        }
+        console.log(`Stdout: ${stdout}`);
+        res.send('Deployment successful');
+    });
+});
+
+server.listen(PORT, () => {
+    console.log(`${APP_NAME} Server is running on port ${PORT}`);
 });
