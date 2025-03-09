@@ -1,185 +1,146 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendster 0.2</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="script.js" defer></script>
-</head>
-<body>
-    <header>
-        <h1>Friendster 0.2</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="profile.html">Profile</a></li>
-                <li><a href="friends.html">Friends</a></li>
-                <li><a href="messages.html">Messages</a></li>
-                <li><a href="groups.html">Groups</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        <h2>Welcome to Friendster 0.2</h2>
-        <p>A nostalgic recreation of the early 2000s social network.</p>
-        <div id="g_id_onload" 
-            data-client_id="YOUR_GOOGLE_CLIENT_ID" 
-            data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-        <div>
-            <button onclick="generateGuestID()" class="button">Continue as Guest</button>
-        </div>
-        <div id="user-info" style="display:none;">
-            <p>Welcome, <span id="user-name"></span>!</p>
-            <img id="user-image" src="" alt="User Image">
-            <button onclick="signOut()">Sign Out</button>
-            <h3>Connect Your Social Media</h3>
-            <div class="social-links">
-                <a href="#" class="social-button facebook">Facebook</a>
-                <a href="#" class="social-button twitter">Twitter</a>
-                <a href="#" class="social-button instagram">Instagram</a>
-                <a href="#" class="social-button linkedin">LinkedIn</a>
-            </div>
-        </div>
-        
-        <h3>Live Chat</h3>
-        <div id="chat-box">
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </main>
-    
-    <footer>
-        <p>&copy; 2025 Friendster 0.2. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const multer = require('multer');
+const path = require('path');
 
-<!-- styles.css -->
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-    }
-    header {
-        background-color: #0073e6;
-        padding: 15px;
-        color: white;
-    }
-    nav ul {
-        list-style: none;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    nav ul li {
-        margin: 10px;
-    }
-    nav ul li a {
-        color: white;
-        text-decoration: none;
-        font-size: 1.2rem;
-    }
-    main {
-        padding: 20px;
-    }
-    .button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #0073e6;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-    }
-    #user-info img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-    }
-    .social-links {
-        margin-top: 10px;
-    }
-    .social-button {
-        display: inline-block;
-        margin: 5px;
-        padding: 10px;
-        border-radius: 5px;
-        color: white;
-        text-decoration: none;
-    }
-    .facebook { background-color: #3b5998; }
-    .twitter { background-color: #1da1f2; }
-    .instagram { background-color: #e4405f; }
-    .linkedin { background-color: #0077b5; }
-    @media (max-width: 768px) {
-        header h1 {
-            font-size: 1.5rem;
-        }
-        nav ul {
-            flex-direction: column;
-            align-items: center;
-        }
-        .button {
-            width: 80%;
-        }
-    }
-    #chat-box {
-        margin-top: 20px;
-        width: 80%;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-        border: 1px solid #ccc;
-        padding: 10px;
-        background: white;
-    }
-    #chat-messages {
-        height: 200px;
-        overflow-y: auto;
-        border-bottom: 1px solid #ccc;
-        padding: 5px;
-    }
-    #chat-input {
-        width: 70%;
-        padding: 5px;
-    }
-</style>
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
-<!-- script.js -->
-<script>
-    function handleCredentialResponse(response) {
-        const data = jwt_decode(response.credential);
-        document.getElementById("user-name").textContent = data.name;
-        document.getElementById("user-image").src = data.picture;
-        document.getElementById("user-info").style.display = "block";
+const APP_NAME = "Tambayan sa Space";
+
+let users = []; // Store user locations
+
+// Set up storage for uploaded images
+const storage = multer.diskStorage({
+    destination: './uploads/',
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}_${file.originalname}`);
     }
-    function signOut() {
-        document.getElementById("user-info").style.display = "none";
-    }
-    function generateGuestID() {
-        const guestID = "Guest_" + Math.floor(Math.random() * 1000000);
-        document.getElementById("user-name").textContent = guestID;
-        document.getElementById("user-image").src = "default-avatar.png";
-        document.getElementById("user-info").style.display = "block";
-    }
-    function sendMessage() {
-        const input = document.getElementById("chat-input");
-        const message = input.value;
-        if (message.trim() === "") return;
+});
+
+const upload = multer({ storage });
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+io.on('connection', (socket) => {
+    console.log(`${APP_NAME}: A user connected`);
+    
+    socket.on('setLocation', (location) => {
+        users[socket.id] = location;
+        console.log(`${APP_NAME}: User ${socket.id} set location:`, location);
+    });
+    
+    socket.on('sendMessage', (data) => {
+        const senderLocation = users[socket.id];
+        if (!senderLocation) return;
         
-        const chatMessages = document.getElementById("chat-messages");
-        const newMessage = document.createElement("p");
-        newMessage.textContent = document.getElementById("user-name").textContent + ": " + message;
-        chatMessages.appendChild(newMessage);
-        input.value = "";
+        for (let [id, location] of Object.entries(users)) {
+            if (id !== socket.id && getDistance(senderLocation, location) < 10) {
+                io.to(id).emit('receiveMessage', data);
+            }
+        }
+    });
+    
+    socket.on('disconnect', () => {
+        delete users[socket.id];
+        console.log(`${APP_NAME}: A user disconnected`);
+    });
+});
+
+// Handle image uploads
+app.post('/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
     }
-</script>
+    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+});
+
+function getDistance(loc1, loc2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (loc2.lat - loc1.lat) * (Math.PI / 180);
+    const dLon = (loc2.lon - loc1.lon) * (Math.PI / 180);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(loc1.lat * (Math.PI / 180)) * Math.cos(loc2.lat * (Math.PI / 180)) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in km
+}
+
+server.listen(3000, () => {
+    console.log(`${APP_NAME} Server is running on port 3000`);
+});
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const multer = require('multer');
+const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+const APP_NAME = "Tambayan sa Space";
+
+let users = []; // Store user locations
+
+// Set up storage for uploaded images
+const storage = multer.diskStorage({
+    destination: './uploads/',
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}_${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+io.on('connection', (socket) => {
+    console.log(`${APP_NAME}: A user connected`);
+    
+    socket.on('setLocation', (location) => {
+        users[socket.id] = location;
+        console.log(`${APP_NAME}: User ${socket.id} set location:`, location);
+    });
+    
+    socket.on('sendMessage', (data) => {
+        const senderLocation = users[socket.id];
+        if (!senderLocation) return;
+        
+        for (let [id, location] of Object.entries(users)) {
+            if (id !== socket.id && getDistance(senderLocation, location) < 10) {
+                io.to(id).emit('receiveMessage', data);
+            }
+        }
+    });
+    
+    socket.on('disconnect', () => {
+        delete users[socket.id];
+        console.log(`${APP_NAME}: A user disconnected`);
+    });
+});
+
+// Handle image uploads
+app.post('/upload', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+});
+
+function getDistance(loc1, loc2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (loc2.lat - loc1.lat) * (Math.PI / 180);
+    const dLon = (loc2.lon - loc1.lon) * (Math.PI / 180);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(loc1.lat * (Math.PI / 180)) * Math.cos(loc2.lat * (Math.PI / 180)) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in km
+}
+
+server.listen(3000, () => {
+    console.log(`${APP_NAME} Server is running on port 3000`);
+});
