@@ -3,71 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook Clone</title>
+    <title>Freedom Speech</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; text-align: center; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-        .post { border-bottom: 1px solid #ccc; padding: 10px; }
-        .like, .comment { cursor: pointer; color: blue; }
-        .chat-box { border: 1px solid #ccc; height: 200px; overflow-y: scroll; padding: 10px; }
-        input, textarea { width: 100%; margin-top: 10px; padding: 8px; }
-        button { background: blue; color: white; padding: 10px; border: none; cursor: pointer; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #007BFF; color: white; }
+        #chatbox { width: 100%; max-width: 600px; height: 400px; overflow-y: auto; border: 2px solid #fff; background: yellow; padding: 10px; margin: 20px auto; border-radius: 10px; }
+        #messageInput { width: 70%; padding: 10px; font-size: 16px; }
+        #fontSelect { padding: 5px; }
+        button { padding: 10px; background: white; border: none; cursor: pointer; }
+        button:hover { background: #ddd; }
+        .social-links { margin: 20px; }
+        .social-links a { margin: 0 10px; color: white; text-decoration: none; font-size: 20px; }
     </style>
 </head>
 <body>
-    <h1>Facebook Clone</h1>
-    <div class="container">
-        <h2>Login</h2>
-        <button onclick="googleSignIn()">Sign in with Google</button>
-        <h2>Post Feed</h2>
-        <div id="posts"></div>
-        <textarea id="postContent" placeholder="Write a post..."></textarea>
-        <button onclick="addPost()">Post</button>
-    </div>
+    <h2>Freedom Speech</h2>
+    <p>Your ID: <span id="visitorID"></span></p>
+    <p id="location">Fetching location...</p>
+    <label for="fontSelect">Choose Font:</label>
+    <select id="fontSelect" onchange="changeFont()">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+    </select>
+    <div id="chatbox"></div>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="addEmoji('😊')">😊</button>
+    <button onclick="addEmoji('😂')">😂</button>
+    <button onclick="addEmoji('❤️')">❤️</button>
     
-    <div class="container">
-        <h2>Chat Box</h2>
-        <div class="chat-box" id="chat"></div>
-        <input type="text" id="chatInput" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
+    <div class="social-links">
+        <a href="https://www.facebook.com" target="_blank">Facebook</a>
+        <a href="https://www.tiktok.com" target="_blank">TikTok</a>
+        <a href="https://www.instagram.com" target="_blank">Instagram</a>
     </div>
     
     <script>
-        function googleSignIn() {
-            alert('Google Sign-In simulated!');
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const visitorID = "V" + Math.floor(Math.random() * 1000000);
+        document.getElementById("visitorID").innerText = visitorID;
+        alert("Welcome! Your ID is " + visitorID);
+
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            if (message.trim() === '') return;
+            db.ref("messages").push({ id: visitorID, text: message });
+            document.getElementById('messageInput').value = '';
         }
         
-        function addPost() {
-            let content = document.getElementById('postContent').value;
-            let posts = document.getElementById('posts');
-            let postDiv = document.createElement('div');
-            postDiv.classList.add('post');
-            postDiv.innerHTML = `<p>${content}</p><span class='like' onclick='likePost(this)'>Like</span> | <span class='comment' onclick='commentPost(this)'>Comment</span>`;
-            posts.prepend(postDiv);
-            document.getElementById('postContent').value = '';
+        db.ref("messages").on("child_added", (snapshot) => {
+            const msg = snapshot.val();
+            document.getElementById('chatbox').innerHTML += `<p><strong>${msg.id}:</strong> ${msg.text}</p>`;
+        });
+        
+        function addEmoji(emoji) {
+            document.getElementById('messageInput').value += emoji;
         }
         
-        function likePost(element) {
-            alert('Liked!');
+        function changeFont() {
+            document.getElementById('chatbox').style.fontFamily = document.getElementById('fontSelect').value;
         }
         
-        function commentPost(element) {
-            let comment = prompt('Enter your comment:');
-            if (comment) {
-                let commentNode = document.createElement('p');
-                commentNode.innerText = `Comment: ${comment}`;
-                element.parentNode.appendChild(commentNode);
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    document.getElementById("location").innerText = `Your location: ${position.coords.latitude}, ${position.coords.longitude}`;
+                }, () => {
+                    document.getElementById("location").innerText = "Location access denied.";
+                });
+            } else {
+                document.getElementById("location").innerText = "Geolocation is not supported by this browser.";
             }
         }
-        
-        function sendMessage() {
-            let msg = document.getElementById('chatInput').value;
-            let chat = document.getElementById('chat');
-            let msgDiv = document.createElement('p');
-            msgDiv.innerText = msg;
-            chat.appendChild(msgDiv);
-            document.getElementById('chatInput').value = '';
-        }
+        getLocation();
     </script>
 </body>
 </html>
