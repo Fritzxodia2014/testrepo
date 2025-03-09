@@ -3,18 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Mini Mario Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body>
-    <div id="chat-container">
-        <h2>Simple Chat</h2>
-        <div id="messages"></div>
-        <input type="text" id="messageInput" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
-    <script src="script.js"></script>
+<script>
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 450,
+    physics: { default: 'arcade', arcade: { gravity: { y: 300 }, debug: false } },
+    scene: { preload, create, update }
+};
+const game = new Phaser.Game(config);
+let player, platforms, cursors, coins, score = 0, level = 1;
+
+function preload() {
+    this.load.image('sky', 'https://i.imgur.com/QG4AA92.png');
+    this.load.image('platform', 'https://i.imgur.com/n3ADd3h.png');
+    this.load.image('coin', 'https://i.imgur.com/4sRmFpk.png');
+    this.load.spritesheet('player', 'https://i.imgur.com/OuVbJry.png', { frameWidth: 32, frameHeight: 48 });
+}
+
+function create() {
+    this.add.image(400, 225, 'sky');
+    platforms = this.physics.add.staticGroup();
+    for (let i = 1; i <= 4; i++) {
+        platforms.create(150 * i, 450 - (50 * i), 'platform');
+    }
+    
+    player = this.physics.add.sprite(100, 350, 'player').setBounce(0.2).setCollideWorldBounds(true);
+    this.physics.add.collider(player, platforms);
+    
+    coins = this.physics.add.group();
+    for (let i = 1; i <= 3; i++) {
+        let coin = coins.create(200 * i, 400 - (50 * i), 'coin');
+        coin.setBounce(0.5);
+    }
+
+    this.physics.add.overlap(player, coins, collectCoin, null, this);
+    cursors = this.input.keyboard.createCursorKeys();
+    
+    this.add.text(20, 20, `Level: ${level}`, { fontSize: '20px', fill: '#fff' });
+}
+
+function update() {
+    player.setVelocityX(0);
+    if (cursors.left.isDown) player.setVelocityX(-160);
+    else if (cursors.right.isDown) player.setVelocityX(160);
+    if (cursors.up.isDown && player.body.touching.down) player.setVelocityY(-330);
+}
+
+function collectCoin(player, coin) {
+    coin.disableBody(true, true);
+    score += 10;
+    if (coins.countActive(true) === 0) nextLevel();
+}
+
+function nextLevel() {
+    if (level < 50) {
+        level++;
+        game.scene.restart();
+    } else {
+        alert("🎉 You won! 50 levels completed!");
+    }
+}
+</script>
 </body>
 </html>
