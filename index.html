@@ -3,119 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambayan sa Space</title>
+    <title>Simple Chat</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-light">
-    <header>
-        <img src="panda-icon.png" alt="Tambayan sa Space" id="app-icon">
-        <h1>Tambayan sa Space</h1>
-    </header>
-    
-    <nav id="sidebar">
-        <ul>
-            <li onclick="showChats()">Chats</li>
-            <li onclick="showCalls()">Calls</li>
-            <li onclick="showContacts()">Contacts</li>
-            <li onclick="showSettings()">Settings</li>
-        </ul>
-    </nav>
-    
-    <div id="theme-switcher">
-        <button onclick="setTheme('light')">Light</button>
-        <button onclick="setTheme('semi-light')">Semi-Light</button>
-        <button onclick="setTheme('dark')">Dark</button>
+<body>
+    <div id="chat-container">
+        <h2>Simple Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
     </div>
-    
-    <div id="auth-container">
-        <div id="login-form">
-            <h2>Login</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="login()">Login</button>
-            <button onclick="googleLogin()">Login with Google</button>
-            <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
-        </div>
-        <div id="register-form" style="display:none;">
-            <h2>Register</h2>
-            <input type="text" id="register-name" placeholder="Full Name">
-            <input type="email" id="register-email" placeholder="Email">
-            <input type="password" id="register-password" placeholder="Password">
-            <input type="tel" id="register-phone" placeholder="Phone Number">
-            <button onclick="register()">Register</button>
-            <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
-        </div>
-    </div>
-    
-    <div id="profile-container" style="display:none;">
-        <h2>Profile</h2>
-        <input type="text" id="profile-name" placeholder="Full Name">
-        <input type="text" id="profile-address" placeholder="Address">
-        <input type="tel" id="profile-phone" placeholder="Phone Number">
-        <button onclick="updateProfile()">Save</button>
-    </div>
-
-    <div id="chat-container" style="display:none;">
-        <div id="user-list"></div>
-        <div id="chat-box">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
-            <input type="file" id="image-upload" accept="image/*">
-            <button onclick="sendImage()">Send Image</button>
-            <button onclick="startAudioCall()">Audio Call</button>
-            <button onclick="startVideoCall()">Video Call</button>
-            <button onclick="sendEmoji('😊')">😊</button>
-            <button onclick="sendEmoji('😂')">😂</button>
-            <button onclick="sendEmoji('❤️')">❤️</button>
-            <button onclick="recordVoiceNote()">🎤 Voice Note</button>
-            <button onclick="shareLocation()">📍 Share Location</button>
-            <button onclick="scanQRCode()">🔍 Scan QR to Add Friend</button>
-            <button onclick="sendGIF()">🎞️ Send GIF</button>
-            <select id="font-selector" onchange="changeFont()">
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Times New Roman">Times New Roman</option>
-            </select>
-            <input type="color" id="bg-color" onchange="changeBackground()" title="Change Background">
-            <div id="read-receipts"></div>
-            <div id="typing-status"></div>
-        </div>
-    </div>
-    
-    <div id="extra-features">
-        <h2>Recent Activity</h2>
-        <div id="recent-calls"></div>
-        <div id="recent-messages"></div>
-        <h2>New Activity</h2>
-        <div id="new-calls"></div>
-        <div id="new-messages"></div>
-        <h2>Friends</h2>
-        <div id="friend-requests"></div>
-        <div id="friend-list"></div>
-        <h2>Inbox & Outbox</h2>
-        <div id="inbox"></div>
-        <div id="outbox"></div>
-        <h2>Account Settings</h2>
-        <div id="restricted-accounts"></div>
-        <div id="blocked-accounts"></div>
-        <button onclick="unblockUser()">Unblock</button>
-        <button onclick="blockUser()">Block</button>
-        <h2>Affinity Level</h2>
-        <div id="affinity-level"></div>
-    </div>
-    
-    <div id="subscription-bar">
-        <p>Subscribe for premium features</p>
-        <button onclick="subscribe()">Subscribe</button>
-    </div>
-
-    <div id="social-links">
-        <a href="#" target="_blank">Facebook</a>
-        <a href="#" target="_blank">Twitter</a>
-        <a href="#" target="_blank">Instagram</a>
-    </div>
-
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
