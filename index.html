@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friendster 0.2</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -24,7 +25,16 @@
     <main>
         <h2>Welcome to Friendster 0.2</h2>
         <p>A nostalgic recreation of the early 2000s social network.</p>
-        <a href="profile.html" class="button">View My Profile</a>
+        <div id="g_id_onload" 
+            data-client_id="YOUR_GOOGLE_CLIENT_ID" 
+            data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+        <div id="user-info" style="display:none;">
+            <p>Welcome, <span id="user-name"></span>!</p>
+            <img id="user-image" src="" alt="User Image">
+            <button onclick="signOut()">Sign Out</button>
+        </div>
     </main>
     
     <footer>
@@ -39,6 +49,8 @@
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
         text-align: center;
+        margin: 0;
+        padding: 0;
     }
     header {
         background-color: #0073e6;
@@ -48,14 +60,20 @@
     nav ul {
         list-style: none;
         padding: 0;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
     }
     nav ul li {
-        display: inline;
-        margin: 0 10px;
+        margin: 10px;
     }
     nav ul li a {
         color: white;
         text-decoration: none;
+        font-size: 1.2rem;
+    }
+    main {
+        padding: 20px;
     }
     .button {
         display: inline-block;
@@ -65,11 +83,34 @@
         text-decoration: none;
         border-radius: 5px;
     }
+    #user-info img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+    @media (max-width: 768px) {
+        header h1 {
+            font-size: 1.5rem;
+        }
+        nav ul {
+            flex-direction: column;
+            align-items: center;
+        }
+        .button {
+            width: 80%;
+        }
+    }
 </style>
 
 <!-- script.js -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        alert("Welcome to Friendster 0.2!");
-    });
+    function handleCredentialResponse(response) {
+        const data = jwt_decode(response.credential);
+        document.getElementById("user-name").textContent = data.name;
+        document.getElementById("user-image").src = data.picture;
+        document.getElementById("user-info").style.display = "block";
+    }
+    function signOut() {
+        document.getElementById("user-info").style.display = "none";
+    }
 </script>
