@@ -3,119 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambayan sa Space</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Calculator App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+            margin: 50px;
+        }
+        .calculator {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1E1E1E;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            padding: 5px;
+        }
+        .buttons button {
+            width: 23%;
+            height: 50px;
+            font-size: 20px;
+            margin: 2px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .operator {
+            background: #ff9500;
+            color: white;
+        }
+        .equal {
+            background: #007BFF;
+            color: white;
+        }
+        .clear {
+            background: #d9534f;
+            color: white;
+        }
+    </style>
 </head>
-<body class="theme-light">
-    <header>
-        <img src="panda-icon.png" alt="Tambayan sa Space" id="app-icon">
-        <h1>Tambayan sa Space</h1>
-    </header>
-    
-    <nav id="sidebar">
-        <ul>
-            <li onclick="showChats()">Chats</li>
-            <li onclick="showCalls()">Calls</li>
-            <li onclick="showContacts()">Contacts</li>
-            <li onclick="showSettings()">Settings</li>
-        </ul>
-    </nav>
-    
-    <div id="theme-switcher">
-        <button onclick="setTheme('light')">Light</button>
-        <button onclick="setTheme('semi-light')">Semi-Light</button>
-        <button onclick="setTheme('dark')">Dark</button>
-    </div>
-    
-    <div id="auth-container">
-        <div id="login-form">
-            <h2>Login</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="login()">Login</button>
-            <button onclick="googleLogin()">Login with Google</button>
-            <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
-        </div>
-        <div id="register-form" style="display:none;">
-            <h2>Register</h2>
-            <input type="text" id="register-name" placeholder="Full Name">
-            <input type="email" id="register-email" placeholder="Email">
-            <input type="password" id="register-password" placeholder="Password">
-            <input type="tel" id="register-phone" placeholder="Phone Number">
-            <button onclick="register()">Register</button>
-            <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+<body>
+    <h1>Simple Calculator</h1>
+    <div class="calculator">
+        <input type="text" id="display" disabled>
+        <div class="buttons">
+            <button onclick="clearDisplay()" class="clear">C</button>
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('/')" class="operator">/</button>
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('*')" class="operator">*</button>
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('-')" class="operator">-</button>
+            <button onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button onclick="calculateResult()" class="equal">=</button>
+            <button onclick="appendValue('+')" class="operator">+</button>
         </div>
     </div>
-    
-    <div id="profile-container" style="display:none;">
-        <h2>Profile</h2>
-        <input type="text" id="profile-name" placeholder="Full Name">
-        <input type="text" id="profile-address" placeholder="Address">
-        <input type="tel" id="profile-phone" placeholder="Phone Number">
-        <button onclick="updateProfile()">Save</button>
-    </div>
 
-    <div id="chat-container" style="display:none;">
-        <div id="user-list"></div>
-        <div id="chat-box">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
-            <input type="file" id="image-upload" accept="image/*">
-            <button onclick="sendImage()">Send Image</button>
-            <button onclick="startAudioCall()">Audio Call</button>
-            <button onclick="startVideoCall()">Video Call</button>
-            <button onclick="sendEmoji('😊')">😊</button>
-            <button onclick="sendEmoji('😂')">😂</button>
-            <button onclick="sendEmoji('❤️')">❤️</button>
-            <button onclick="recordVoiceNote()">🎤 Voice Note</button>
-            <button onclick="shareLocation()">📍 Share Location</button>
-            <button onclick="scanQRCode()">🔍 Scan QR to Add Friend</button>
-            <button onclick="sendGIF()">🎞️ Send GIF</button>
-            <select id="font-selector" onchange="changeFont()">
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Times New Roman">Times New Roman</option>
-            </select>
-            <input type="color" id="bg-color" onchange="changeBackground()" title="Change Background">
-            <div id="read-receipts"></div>
-            <div id="typing-status"></div>
-        </div>
-    </div>
-    
-    <div id="extra-features">
-        <h2>Recent Activity</h2>
-        <div id="recent-calls"></div>
-        <div id="recent-messages"></div>
-        <h2>New Activity</h2>
-        <div id="new-calls"></div>
-        <div id="new-messages"></div>
-        <h2>Friends</h2>
-        <div id="friend-requests"></div>
-        <div id="friend-list"></div>
-        <h2>Inbox & Outbox</h2>
-        <div id="inbox"></div>
-        <div id="outbox"></div>
-        <h2>Account Settings</h2>
-        <div id="restricted-accounts"></div>
-        <div id="blocked-accounts"></div>
-        <button onclick="unblockUser()">Unblock</button>
-        <button onclick="blockUser()">Block</button>
-        <h2>Affinity Level</h2>
-        <div id="affinity-level"></div>
-    </div>
-    
-    <div id="subscription-bar">
-        <p>Subscribe for premium features</p>
-        <button onclick="subscribe()">Subscribe</button>
-    </div>
-
-    <div id="social-links">
-        <a href="#" target="_blank">Facebook</a>
-        <a href="#" target="_blank">Twitter</a>
-        <a href="#" target="_blank">Instagram</a>
-    </div>
-
-    <script src="script.js"></script>
+    <script>
+        function appendValue(value) {
+            document.getElementById("display").value += value;
+        }
+        function clearDisplay() {
+            document.getElementById("display").value = "";
+        }
+        function calculateResult() {
+            try {
+                document.getElementById("display").value = eval(document.getElementById("display").value);
+            } catch {
+                document.getElementById("display").value = "Error";
+            }
+        }
+    </script>
 </body>
 </html>
