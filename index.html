@@ -30,6 +30,9 @@
             data-callback="handleCredentialResponse">
         </div>
         <div class="g_id_signin" data-type="standard"></div>
+        <div>
+            <button onclick="generateGuestID()" class="button">Continue as Guest</button>
+        </div>
         <div id="user-info" style="display:none;">
             <p>Welcome, <span id="user-name"></span>!</p>
             <img id="user-image" src="" alt="User Image">
@@ -134,5 +137,11 @@
     }
     function signOut() {
         document.getElementById("user-info").style.display = "none";
+    }
+    function generateGuestID() {
+        const guestID = "Guest_" + Math.floor(Math.random() * 100000);
+        document.getElementById("user-name").textContent = guestID;
+        document.getElementById("user-image").src = "default-avatar.png";
+        document.getElementById("user-info").style.display = "block";
     }
 </script>
