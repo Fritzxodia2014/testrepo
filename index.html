@@ -1,93 +1,72 @@
+<!-- Facebook Clone (HTML, CSS, JavaScript) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Mario Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <title>Facebook Clone</title>
     <style>
-        body { text-align: center; background-color: #87CEEB; font-family: Arial, sans-serif; }
-        canvas { display: block; margin: auto; }
-        .controls { margin-top: 10px; }
-        .btn { font-size: 20px; padding: 10px; margin: 5px; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; text-align: center; }
+        .container { width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+        .post { border-bottom: 1px solid #ccc; padding: 10px; }
+        .like, .comment { cursor: pointer; color: blue; }
+        .chat-box { border: 1px solid #ccc; height: 200px; overflow-y: scroll; }
     </style>
 </head>
 <body>
-
-<h2>Mini Mario Game</h2>
-<div class="controls">
-    <button class="btn" onclick="moveLeft()">⬅️</button>
-    <button class="btn" onclick="jump()">⬆️</button>
-    <button class="btn" onclick="moveRight()">➡️</button>
-</div>
-
-<script>
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 450,
-    physics: { default: 'arcade', arcade: { gravity: { y: 300 }, debug: false } },
-    scene: { preload, create, update }
-};
-const game = new Phaser.Game(config);
-let player, platforms, cursors, coins, score = 0, level = 1, moveLeftPressed = false, moveRightPressed = false;
-
-function preload() {
-    this.load.image('sky', 'https://i.imgur.com/QG4AA92.png');
-    this.load.image('platform', 'https://i.imgur.com/n3ADd3h.png');
-    this.load.image('coin', 'https://i.imgur.com/4sRmFpk.png');
-    this.load.spritesheet('player', 'https://i.imgur.com/OuVbJry.png', { frameWidth: 32, frameHeight: 48 });
-}
-
-function create() {
-    this.add.image(400, 225, 'sky');
-    platforms = this.physics.add.staticGroup();
-    for (let i = 1; i <= 4; i++) {
-        platforms.create(150 * i, 450 - (50 * i), 'platform');
-    }
+    <h1>Facebook Clone</h1>
+    <div class="container">
+        <h2>Login</h2>
+        <button onclick="googleSignIn()">Sign in with Google</button>
+        <h2>Post Feed</h2>
+        <div id="posts"></div>
+        <textarea id="postContent" placeholder="Write a post..."></textarea>
+        <button onclick="addPost()">Post</button>
+    </div>
     
-    player = this.physics.add.sprite(100, 350, 'player').setBounce(0.2).setCollideWorldBounds(true);
-    this.physics.add.collider(player, platforms);
+    <div class="container">
+        <h2>Chat Box</h2>
+        <div class="chat-box" id="chat"></div>
+        <input type="text" id="chatInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
     
-    coins = this.physics.add.group();
-    for (let i = 1; i <= 3; i++) {
-        let coin = coins.create(200 * i, 400 - (50 * i), 'coin');
-        coin.setBounce(0.5);
-    }
-
-    this.physics.add.overlap(player, coins, collectCoin, null, this);
-    cursors = this.input.keyboard.createCursorKeys();
-    
-    this.add.text(20, 20, `Level: ${level}`, { fontSize: '20px', fill: '#fff' });
-}
-
-function update() {
-    player.setVelocityX(0);
-    if (cursors.left.isDown || moveLeftPressed) player.setVelocityX(-160);
-    else if (cursors.right.isDown || moveRightPressed) player.setVelocityX(160);
-    if ((cursors.up.isDown || jumpPressed) && player.body.touching.down) player.setVelocityY(-330);
-}
-
-function collectCoin(player, coin) {
-    coin.disableBody(true, true);
-    score += 10;
-    if (coins.countActive(true) === 0) nextLevel();
-}
-
-function nextLevel() {
-    if (level < 50) {
-        level++;
-        game.scene.restart();
-    } else {
-        alert("🎉 You won! 50 levels completed!");
-    }
-}
-
-// Mobile Touch Controls
-function moveLeft() { moveLeftPressed = true; setTimeout(() => moveLeftPressed = false, 200); }
-function moveRight() { moveRightPressed = true; setTimeout(() => moveRightPressed = false, 200); }
-function jump() { jumpPressed = true; setTimeout(() => jumpPressed = false, 200); }
-</script>
-
+    <script>
+        function googleSignIn() {
+            alert('Google Sign-In simulated!');
+        }
+        
+        function addPost() {
+            let content = document.getElementById('postContent').value;
+            let posts = document.getElementById('posts');
+            let postDiv = document.createElement('div');
+            postDiv.classList.add('post');
+            postDiv.innerHTML = `<p>${content}</p><span class='like' onclick='likePost(this)'>Like</span> | <span class='comment' onclick='commentPost(this)'>Comment</span>`;
+            posts.prepend(postDiv);
+            document.getElementById('postContent').value = '';
+        }
+        
+        function likePost(element) {
+            alert('Liked!');
+        }
+        
+        function commentPost(element) {
+            let comment = prompt('Enter your comment:');
+            if (comment) {
+                let commentNode = document.createElement('p');
+                commentNode.innerText = `Comment: ${comment}`;
+                element.parentNode.appendChild(commentNode);
+            }
+        }
+        
+        function sendMessage() {
+            let msg = document.getElementById('chatInput').value;
+            let chat = document.getElementById('chat');
+            let msgDiv = document.createElement('p');
+            msgDiv.innerText = msg;
+            chat.appendChild(msgDiv);
+            document.getElementById('chatInput').value = '';
+        }
+    </script>
 </body>
 </html>
