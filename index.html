@@ -5,8 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini Mario Game</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body { text-align: center; background-color: #87CEEB; font-family: Arial, sans-serif; }
+        canvas { display: block; margin: auto; }
+        .controls { margin-top: 10px; }
+        .btn { font-size: 20px; padding: 10px; margin: 5px; }
+    </style>
 </head>
 <body>
+
+<h2>Mini Mario Game</h2>
+<div class="controls">
+    <button class="btn" onclick="moveLeft()">⬅️</button>
+    <button class="btn" onclick="jump()">⬆️</button>
+    <button class="btn" onclick="moveRight()">➡️</button>
+</div>
+
 <script>
 const config = {
     type: Phaser.AUTO,
@@ -16,7 +30,7 @@ const config = {
     scene: { preload, create, update }
 };
 const game = new Phaser.Game(config);
-let player, platforms, cursors, coins, score = 0, level = 1;
+let player, platforms, cursors, coins, score = 0, level = 1, moveLeftPressed = false, moveRightPressed = false;
 
 function preload() {
     this.load.image('sky', 'https://i.imgur.com/QG4AA92.png');
@@ -49,9 +63,9 @@ function create() {
 
 function update() {
     player.setVelocityX(0);
-    if (cursors.left.isDown) player.setVelocityX(-160);
-    else if (cursors.right.isDown) player.setVelocityX(160);
-    if (cursors.up.isDown && player.body.touching.down) player.setVelocityY(-330);
+    if (cursors.left.isDown || moveLeftPressed) player.setVelocityX(-160);
+    else if (cursors.right.isDown || moveRightPressed) player.setVelocityX(160);
+    if ((cursors.up.isDown || jumpPressed) && player.body.touching.down) player.setVelocityY(-330);
 }
 
 function collectCoin(player, coin) {
@@ -68,6 +82,12 @@ function nextLevel() {
         alert("🎉 You won! 50 levels completed!");
     }
 }
+
+// Mobile Touch Controls
+function moveLeft() { moveLeftPressed = true; setTimeout(() => moveLeftPressed = false, 200); }
+function moveRight() { moveRightPressed = true; setTimeout(() => moveRightPressed = false, 200); }
+function jump() { jumpPressed = true; setTimeout(() => jumpPressed = false, 200); }
 </script>
+
 </body>
 </html>
