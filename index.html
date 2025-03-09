@@ -12,6 +12,15 @@
         <h1>Tambayan sa Space</h1>
     </header>
     
+    <nav id="sidebar">
+        <ul>
+            <li onclick="showChats()">Chats</li>
+            <li onclick="showCalls()">Calls</li>
+            <li onclick="showContacts()">Contacts</li>
+            <li onclick="showSettings()">Settings</li>
+        </ul>
+    </nav>
+    
     <div id="theme-switcher">
         <button onclick="setTheme('light')">Light</button>
         <button onclick="setTheme('semi-light')">Semi-Light</button>
@@ -59,12 +68,18 @@
             <button onclick="sendEmoji('😊')">😊</button>
             <button onclick="sendEmoji('😂')">😂</button>
             <button onclick="sendEmoji('❤️')">❤️</button>
+            <button onclick="recordVoiceNote()">🎤 Voice Note</button>
+            <button onclick="shareLocation()">📍 Share Location</button>
+            <button onclick="scanQRCode()">🔍 Scan QR to Add Friend</button>
+            <button onclick="sendGIF()">🎞️ Send GIF</button>
             <select id="font-selector" onchange="changeFont()">
                 <option value="Arial">Arial</option>
                 <option value="Verdana">Verdana</option>
                 <option value="Times New Roman">Times New Roman</option>
             </select>
             <input type="color" id="bg-color" onchange="changeBackground()" title="Change Background">
+            <div id="read-receipts"></div>
+            <div id="typing-status"></div>
         </div>
     </div>
     
